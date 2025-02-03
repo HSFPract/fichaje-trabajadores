@@ -4,80 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fichaje del Trabajador</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7fc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .worker-info {
-            font-weight: bold;
-            color: #2980b9;
-            font-size: 18px;
-        }
-        .fichaje-time {
-            color: #27ae60;
-            font-size: 18px;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fichaje del Trabajador</h1>
-        <p>Gracias por fichar, el trabajador <span class="worker-info" id="workerName"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span> el <span class="fichaje-time" id="fechaExacta"></span>.</p>
-        <div id="footer"></div>
-    </div>
-
+    <h1>Fichaje del Trabajador</h1>
+    
+    <p>Gracias por fichar, el trabajador <span id="workerName"></span> ha fichado a las <span id="fichajeHora"></span> el <span id="fechaExacta"></span>.</p>
+    
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        const API_KEY = '<YOUR_API_KEY>'; // Tu clave de API de Google
-        const SHEET_ID = '<YOUR_SPREADSHEET_ID>'; // El ID de tu hoja de cálculo de Google Sheets
-
-        // Capturar el parámetro 'nombre' de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const workerName = urlParams.get('nombre'); // Nombre del trabajador
-        const fichajeHora = new Date().toLocaleString(); // Hora de fichaje
+        const fichajeHora = new Date().toLocaleString(); // Hora del fichaje
         const fechaExacta = new Date().toISOString(); // Fecha exacta
 
-        // Mostrar los datos en la página
         document.getElementById('workerName').innerText = workerName;
         document.getElementById('fichajeHora').innerText = fichajeHora;
         document.getElementById('fechaExacta').innerText = fechaExacta;
 
-        // Función para cargar la API de Google Sheets
+        const API_KEY = '<YOUR_API_KEY>';
+        const SHEET_ID = '<YOUR_SPREADSHEET_ID>';
+
         function loadClient() {
             gapi.client.setApiKey(API_KEY);
             return gapi.client.load("https://sheets.googleapis.com/$discovery/rest?version=v4")
                 .then(function () {
-                    console.log("GAPI client loaded for API");
+                    console.log("GAPI client loaded");
                 }, function (err) {
                     console.error("Error loading GAPI client", err);
                 });
         }
 
-        // Función para agregar datos a Google Sheets
         function appendDataToSheet(workerName, fichajeHora, fechaExacta) {
             const params = {
                 spreadsheetId: SHEET_ID,
-                range: "Sheet1!A:C", // Nombre de la hoja
+                range: "Sheet1!A:C", // Cambia el nombre de la hoja si es necesario
                 valueInputOption: "RAW",
             };
 
@@ -89,20 +49,22 @@
 
             const request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
             request.then(function (response) {
-                console.log("Datos añadidos correctamente:", response);
-            }, function (reason) {
-                console.error("Error al añadir datos:", reason);
+                console.log("Datos añadidos correctamente", response);
+            }, function (err) {
+                console.error("Error al añadir datos", err);
             });
         }
 
-        // Cargar cliente y enviar los datos a Google Sheets
-        loadClient().then(function () {
-            appendDataToSheet(workerName, fichajeHora, fechaExacta);
-        });
+        function handleFichaje(workerName) {
+            loadClient().then(function () {
+                appendDataToSheet(workerName, fichajeHora, fechaExacta);
+            });
+        }
+
+        handleFichaje(workerName);
     </script>
 </body>
 </html>
-
 
     
     
