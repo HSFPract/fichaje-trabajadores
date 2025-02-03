@@ -68,24 +68,75 @@
     <div class="container">
         <h1>Fichaje del Trabajador</h1>
     
-        <p>Gracias por fichar, el trabajador con id <span class="worker-info" id="workerId"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span>.</p>
+        <p>Gracias por fichar, el trabajador <span class="worker-info" id="workerName"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span> el <span class="fichaje-time" id="fechaExacta"></span>.</p>
 
         <div class="footer">
-            
+            <!-- Aquí puedes poner algún enlace si lo deseas -->
         </div>
     </div>
 
+    <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Capturamos el parámetro 'id' de la URL
+        // Capturamos el parámetro 'nombre' de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const workerId = urlParams.get('id'); // ID del trabajador
+        const workerName = urlParams.get('nombre'); // Nombre del trabajador
         const fichajeHora = new Date().toLocaleString(); // Hora del fichaje
-    
+        const fechaExacta = new Date().toISOString(); // Fecha exacta en formato ISO 8601
+
         // Mostramos los datos en la página
-        document.getElementById('workerId').innerText = workerId;
+        document.getElementById('workerName').innerText = workerName;
         document.getElementById('fichajeHora').innerText = fichajeHora;
+        document.getElementById('fechaExacta').innerText = fechaExacta;
+
+        // Configuración de la API de Google Sheets
+        const API_KEY = 'AIzaSyDpUhdFWxD42Mz33v6vPrPg2co-LyMnRzA'; // Tu clave de API de Google
+        const SHEET_ID = '1xyvdLJ1dUZiBiH1KJjfjhfs8EoalJ7voQppEa3lEWlk'; // El ID de tu hoja de cálculo de Google Sheets
+
+        // Función para cargar la API de Google Sheets
+        function loadClient() {
+            gapi.client.setApiKey(API_KEY);
+            return gapi.client.load("https://sheets.googleapis.com/$discovery/rest?version=v4")
+                .then(function () {
+                    console.log("GAPI client loaded for API");
+                }, function (err) {
+                    console.error("Error loading GAPI client", err);
+                });
+        }
+
+        // Función para agregar datos a Google Sheets
+        function appendDataToSheet(workerName, fichajeHora, fechaExacta) {
+            const params = {
+                spreadsheetId: SHEET_ID,
+                range: "Sheet1!A:C", // Cambia el nombre de la hoja si es necesario
+                valueInputOption: "RAW",
+            };
+
+            const valueRangeBody = {
+                "values": [
+                    [workerName, fichajeHora, fechaExacta]
+                ]
+            };
+
+            const request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
+            request.then(function (response) {
+                console.log("Datos añadidos correctamente:", response);
+            }, function (reason) {
+                console.error("Error al añadir datos:", reason);
+            });
+        }
+
+        // Función para manejar el fichaje y enviar los datos
+        function handleFichaje(workerName) {
+            loadClient().then(function () {
+                appendDataToSheet(workerName, fichajeHora, fechaExacta);
+            });
+        }
+
+        // Llamar a la función de fichaje para enviar los datos a Google Sheets
+        handleFichaje(workerName);
     </script>
 </body>
 </html>
+
     
     
