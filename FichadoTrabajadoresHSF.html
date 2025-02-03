@@ -69,65 +69,12 @@
         <h1>Fichaje del Trabajador</h1>
     
         <p>Gracias por fichar, el trabajador con id <span class="worker-info" id="workerId"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span>.</p>
-<script>
-        const API_KEY = '<YOUR_API_KEY>';
-        const SHEET_ID = '<YOUR_SPREADSHEET_ID>';
 
-        // Función para cargar la API de Google Sheets
-        function loadClient() {
-            gapi.client.setApiKey(API_KEY);
-            return gapi.client.load("https://sheets.googleapis.com/$discovery/rest?version=v4")
-              .then(function() {
-                console.log("GAPI client loaded for API");
-              }, function(err) {
-                console.error("Error loading GAPI client", err);
-              });
-        }
-
-        // Función para agregar datos a Google Sheets
-        function appendDataToSheet(workerId, fichajeHora) {
-            const params = {
-              spreadsheetId: SHEET_ID,
-              range: "Sheet1!A:B", // Cambia el nombre de la hoja si es necesario
-              valueInputOption: "RAW",
-            };
-
-            const valueRangeBody = {
-              "values": [
-                [workerId, fichajeHora]
-              ]
-            };
-
-            const request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
-            request.then(function(response) {
-              console.log("Datos añadidos correctamente:", response);
-            }, function(reason) {
-              console.error("Error al añadir datos:", reason);
-            });
-        }
-
-        // Función para manejar el fichaje
-        function handleFichaje(workerId) {
-            const fichajeHora = new Date().toLocaleString(); // Hora actual
-
-            loadClient().then(function() {
-                appendDataToSheet(workerId, fichajeHora);
-            });
-        }
-
-        // Capturar el ID del trabajador (debe ser pasado por la URL o QR)
-        const urlParams = new URLSearchParams(window.location.search);
-        const workerId = urlParams.get('id');
-        document.getElementById('workerId').innerText = workerId;
-
-        // Enviar los datos de fichaje a Google Sheets
-        handleFichaje(workerId);
-    </script>
         <div class="footer">
             
         </div>
     </div>
-   
+
     <script>
         // Capturamos el parámetro 'id' de la URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -140,4 +87,5 @@
     </script>
 </body>
 </html>
+    
     
