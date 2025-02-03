@@ -14,7 +14,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .container {
             background-color: white;
             border-radius: 8px;
@@ -24,73 +23,44 @@
             max-width: 500px;
             text-align: center;
         }
-
         h1 {
             color: #2c3e50;
             font-size: 24px;
             margin-bottom: 20px;
         }
-
-        p {
-            color: #7f8c8d;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
         .worker-info {
             font-weight: bold;
             color: #2980b9;
             font-size: 18px;
         }
-
         .fichaje-time {
             color: #27ae60;
             font-size: 18px;
-        }
-
-        .footer {
-            margin-top: 30px;
-            font-size: 14px;
-            color: #bdc3c7;
-        }
-
-        .footer a {
-            color: #2980b9;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Fichaje del Trabajador</h1>
-    
         <p>Gracias por fichar, el trabajador <span class="worker-info" id="workerName"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span> el <span class="fichaje-time" id="fechaExacta"></span>.</p>
-
-        <div class="footer">
-            <!-- Aquí puedes poner algún enlace si lo deseas -->
-        </div>
+        <div id="footer"></div>
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Capturamos el parámetro 'nombre' de la URL
+        const API_KEY = '<YOUR_API_KEY>'; // Tu clave de API de Google
+        const SHEET_ID = '<YOUR_SPREADSHEET_ID>'; // El ID de tu hoja de cálculo de Google Sheets
+
+        // Capturar el parámetro 'nombre' de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const workerName = urlParams.get('nombre'); // Nombre del trabajador
-        const fichajeHora = new Date().toLocaleString(); // Hora del fichaje
-        const fechaExacta = new Date().toISOString(); // Fecha exacta en formato ISO 8601
+        const fichajeHora = new Date().toLocaleString(); // Hora de fichaje
+        const fechaExacta = new Date().toISOString(); // Fecha exacta
 
-        // Mostramos los datos en la página
+        // Mostrar los datos en la página
         document.getElementById('workerName').innerText = workerName;
         document.getElementById('fichajeHora').innerText = fichajeHora;
         document.getElementById('fechaExacta').innerText = fechaExacta;
-
-        // Configuración de la API de Google Sheets
-        const API_KEY = 'AIzaSyAkBPcvsV1EEOAau5Ve6Msx7Pxw704SbQU'; // Tu clave de API de Google
-        const SHEET_ID = '1xyvdLJ1dUZiBiH1KJjfjhfs8EoalJ7voQppEa3lEWlk'; // El ID de tu hoja de cálculo de Google Sheets
 
         // Función para cargar la API de Google Sheets
         function loadClient() {
@@ -107,7 +77,7 @@
         function appendDataToSheet(workerName, fichajeHora, fechaExacta) {
             const params = {
                 spreadsheetId: SHEET_ID,
-                range: "Sheet1!A:C", // Cambia el nombre de la hoja si es necesario
+                range: "Sheet1!A:C", // Nombre de la hoja
                 valueInputOption: "RAW",
             };
 
@@ -125,18 +95,14 @@
             });
         }
 
-        // Función para manejar el fichaje y enviar los datos
-        function handleFichaje(workerName) {
-            loadClient().then(function () {
-                appendDataToSheet(workerName, fichajeHora, fechaExacta);
-            });
-        }
-
-        // Llamar a la función de fichaje para enviar los datos a Google Sheets
-        handleFichaje(workerName);
+        // Cargar cliente y enviar los datos a Google Sheets
+        loadClient().then(function () {
+            appendDataToSheet(workerName, fichajeHora, fechaExacta);
+        });
     </script>
 </body>
 </html>
+
 
     
     
