@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fichaje del Trabajador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .worker-info {
+            font-weight: bold;
+            color: #2980b9;
+            font-size: 18px;
+        }
+
+        .fichaje-time {
+            color: #27ae60;
+            font-size: 18px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+
+        .footer a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fichaje del Trabajador</h1>
+    
+        <p>Gracias por fichar, el trabajador con id <span class="worker-info" id="workerId"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span>.</p>
+
+        <div class="footer">
+            
+        </div>
+    </div>
+
+    <script>
+        // Capturamos el parámetro 'id' de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const workerId = urlParams.get('id'); // ID del trabajador
+        const fichajeHora = new Date().toLocaleString(); // Hora del fichaje
+    
+        // Mostramos los datos en la página
+        document.getElementById('workerId').innerText = workerId;
+        document.getElementById('fichajeHora').innerText = fichajeHora;
+    </script>
+</body>
+</html>
+    
