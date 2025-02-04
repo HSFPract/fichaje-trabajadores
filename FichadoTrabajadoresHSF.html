@@ -14,7 +14,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .container {
             background-color: white;
             border-radius: 8px;
@@ -24,91 +23,80 @@
             max-width: 500px;
             text-align: center;
         }
-
         h1 {
             color: #2c3e50;
             font-size: 24px;
             margin-bottom: 20px;
         }
-
         p {
             color: #7f8c8d;
             font-size: 16px;
             margin: 10px 0;
         }
-
         .worker-info {
             font-weight: bold;
             color: #2980b9;
             font-size: 18px;
         }
-
         .fichaje-time {
             color: #27ae60;
             font-size: 18px;
         }
-
         .footer {
             margin-top: 30px;
             font-size: 14px;
             color: #bdc3c7;
-        }
-
-        .footer a {
-            color: #2980b9;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Fichaje del Trabajador</h1>
-    
         <p>Gracias por fichar, el trabajador <span class="worker-info" id="workerName"></span> ha fichado a las <span class="fichaje-time" id="fichajeHora"></span> el <span class="fichaje-time" id="fechaExacta"></span>.</p>
-
-        <div class="footer">
-            <!-- Aquí puedes poner algún enlace si lo deseas -->
-        </div>
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Capturamos el parámetro 'nombre' de la URL
+        // Capturamos el parámetro 'nombre' del QR (nombre del trabajador)
         const urlParams = new URLSearchParams(window.location.search);
-        const workerName = urlParams.get('nombre'); // Nombre del trabajador
-        const fichajeHora = new Date().toLocaleString(); // Hora del fichaje
-        const fechaExacta = new Date().toISOString(); // Fecha exacta en formato ISO 8601
+        const workerName = urlParams.get('nombre') || "Desconocido";
+        const fichajeHora = new Date().toLocaleString();
+        const fechaExacta = new Date().toISOString();
 
         // Mostramos los datos en la página
         document.getElementById('workerName').innerText = workerName;
         document.getElementById('fichajeHora').innerText = fichajeHora;
         document.getElementById('fechaExacta').innerText = fechaExacta;
 
-        // Configuración de la API de Google Sheets
-        const API_KEY = 'AIzaSyAkBPcvsV1EEOAau5Ve6Msx7Pxw704SbQU'; // Tu clave de API de Google
-        const SHEET_ID = '1LsGokJRH7pkWcT0MaaCWpU3fE2m8VN1t'; // El ID de tu hoja de cálculo de Google Sheets
+        // CONFIGURACIÓN DE GOOGLE SHEETS API
+        const CLIENT_ID = "102921602328839827481.apps.googleusercontent.com";  // Reemplázalo con tu CLIENT_ID de Google Cloud
+        const API_KEY = "AIzaSyAkBPcvsV1EEOAau5Ve6Msx7Pxw704SbQU";  // Reemplázalo con tu API KEY
+        const SHEET_ID = "1LsGokJRH7pkWcT0MaaCWpU3fE2m8VN1t";  // ID de la hoja de Google Sheets
+        const SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-        // Función para cargar la API de Google Sheets
-        function loadClient() {
-            gapi.client.setApiKey(API_KEY);
-            return gapi.client.load("https://sheets.googleapis.com/$discovery/rest?version=v4")
-                .then(function () {
-                    console.log("GAPI client loaded for API");
-                }, function (err) {
-                    console.error("Error loading GAPI client", err);
-                });
+        function gapiLoaded() {
+            gapi.load("client:auth2", initGAPI);
         }
 
-        // Función para agregar datos a Google Sheets
-        function appendDataToSheet(workerName, fichajeHora, fechaExacta) {
+        function initGAPI() {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                scope: SCOPES,
+            }).then(() => {
+                gapi.auth2.getAuthInstance().signIn().then(() => {
+                    console.log("✅ Usuario autenticado");
+                    appendDataToSheet();
+                });
+            }).catch(error => console.error("❌ Error al autenticar:", error));
+        }
+
+        function appendDataToSheet() {
             const params = {
                 spreadsheetId: SHEET_ID,
-                range: "Sheet1!A2:C", // Cambia el nombre de la hoja si es necesario
-                valueInputOption: "RAW",
+                range: "Sheet1!A:C",  // Automáticamente insertará en la siguiente fila disponible
+                valueInputOption: "USER_ENTERED",
                 insertDataOption: "INSERT_ROWS",
             };
 
@@ -118,23 +106,18 @@
                 ]
             };
 
-            const request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
-            request.then(function (response) {
-                console.log("Datos añadidos correctamente:", response);
-            }, function (reason) {
-                console.error("Error al añadir datos:", reason);
-            });
+            gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody).then(
+                function(response) {
+                    console.log("✅ Datos añadidos correctamente:", response);
+                },
+                function(error) {
+                    console.error("❌ Error al añadir datos:", error);
+                }
+            );
         }
-
-        // Función para manejar el fichaje y enviar los datos
-        function handleFichaje(workerName) {
-            loadClient().then(function () {
-                appendDataToSheet(workerName, fichajeHora, fechaExacta);
-            });
-        }
-
-        // Llamar a la función de fichaje para enviar los datos a Google Sheets
-        handleFichaje(workerName);
     </script>
+
+    <!-- Carga GAPI y ejecuta la autenticación -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 </body>
 </html>
