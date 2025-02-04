@@ -75,8 +75,27 @@
         </div>
     </div>
 
-    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Incluye las bibliotecas de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
     <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+      apiKey: "AIzaSyB1zDG4Dt_jnf8Z97bVOlaT9CVqPo-_7Gg",
+      authDomain: "fichajehsf.firebaseapp.com",
+      projectId: "fichajehsf",
+      storageBucket: "fichajehsf.firebasestorage.app",
+      messagingSenderId: "19472998731",
+      appId: "1:19472998731:web:88f31832c4fb088af388ce",
+      measurementId: "G-13X3GCJKHX"
+    };
+
+
+        // Inicializa Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
         // Capturamos el parámetro 'nombre' de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const workerName = urlParams.get('nombre'); // Nombre del trabajador
@@ -88,54 +107,23 @@
         document.getElementById('fichajeHora').innerText = fichajeHora;
         document.getElementById('fechaExacta').innerText = fechaExacta;
 
-        // Configuración de la API de Google Sheets
-        const API_KEY = 'AIzaSyCASNvaPwUIQ2AfhPA5w6Z3_XGobrpGy5g'; // Tu clave de API de Google
-        const SHEET_ID = '1xyvdLJ1dUZiBiH1KJjfjhfs8EoalJ7voQppEa3lEWlk'; // El ID de tu hoja de cálculo de Google Sheets
-
-        // Función para cargar la API de Google Sheets
-        function loadClient() {
-            gapi.client.setApiKey(API_KEY);
-            return gapi.client.load("https://sheets.googleapis.com/$discovery/rest?version=v4")
-                .then(function () {
-                    console.log("GAPI client loaded for API");
-                }, function (err) {
-                    console.error("Error loading GAPI client", err);
-                });
-        }
-
-        // Función para agregar datos a Google Sheets
-        function appendDataToSheet(workerName, fichajeHora, fechaExacta) {
-            const params = {
-                spreadsheetId: SHEET_ID,
-                range: "Sheet1!A:C", // Cambia el nombre de la hoja si es necesario
-                valueInputOption: "RAW",
-                insertDataOption: "INSERT_ROWS",
-            };
-
-            const valueRangeBody = {
-                "values": [
-                    [workerName, fichajeHora, fechaExacta]
-                ]
-            };
-
-            const request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
-            request.then(function (response) {
-                console.log("✅ Datos añadidos correctamente:", response);
-            }, function (reason) {
-                console.error("❌ Error al añadir datos:", reason);
+        // Función para guardar los datos en Firestore
+        function saveFichaje(workerName, fichajeHora, fechaExacta) {
+            db.collection("fichajes").add({
+                workerName: workerName,
+                fichajeHora: fichajeHora,
+                fechaExacta: fechaExacta
+            })
+            .then((docRef) => {
+                console.log("✅ Fichaje guardado con ID: ", docRef.id);
+            })
+            .catch((error) => {
+                console.error("❌ Error al guardar el fichaje: ", error);
             });
         }
 
-        // Función para manejar el fichaje y enviar los datos
-        function handleFichaje(workerName) {
-            loadClient().then(function () {
-                appendDataToSheet(workerName, fichajeHora, fechaExacta);
-            });
-        }
-
-        // Llamar a la función de fichaje para enviar los datos a Google Sheets
-        handleFichaje(workerName);
+        // Llamar a la función para guardar los datos en Firestore
+        saveFichaje(workerName, fichajeHora, fechaExacta);
     </script>
 </body>
 </html>
-
